@@ -9,12 +9,23 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U profile"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  migrate:
+    image: ghcr.io/kukymbr/goose-docker:latest
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: postgres://profile:secret@postgres:5432/profile_db
+      GOOSE_COMMAND: up
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   minio:
     image: minio/minio
@@ -28,6 +39,18 @@ services:
     volumes:
       - minio_data:/data
 
+  minio-init:
+    image: minio/mc
+    entrypoint: >
+      /bin/sh -c "
+        sleep 3;
+        mc alias set local http://minio:9000 minioadmin minioadmin;
+        mc mb --ignore-existing local/avatars;
+        echo 'bucket ready';
+      "
+    depends_on:
+      - minio
+
   profile-service:
     build:
       context: .
@@ -36,13 +59,15 @@ services:
       - "8082:8082"
     environment:
       DATABASE_URL: postgres://profile:secret@postgres:5432/profile_db
-      #JWT_SECRET: super-secret-key-change-in-prod
       MINIO_ENDPOINT: minio:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
+      TEST_USER_ID: 00000000-0000-0000-0000-000000000001
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
