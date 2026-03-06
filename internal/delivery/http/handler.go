@@ -8,12 +8,11 @@ import (
 )
 
 type Handler struct {
-	profileUC      *usecase.ProfileUsecase
+	profileUC *usecase.ProfileUsecase
 	// contactUC      *usecase.ContactUsecase
-	privacyUC      *usecase.PrivacyUsecase
+	privacyUC *usecase.PrivacyUsecase
 	// favoriteUC     *usecase.FavoriteUsecase
 	// notificationUC *usecase.NotificationUsecase
-	jwtSecret      string
 }
 
 func NewHandler(
@@ -22,15 +21,13 @@ func NewHandler(
 	privacyUC *usecase.PrivacyUsecase,
 	// favoriteUC *usecase.FavoriteUsecase,
 	// notificationUC *usecase.NotificationUsecase,
-	jwtSecret string,
 ) *Handler {
 	return &Handler{
-		profileUC:      profileUC,
+		profileUC: profileUC,
 		// contactUC:      contactUC,
-		privacyUC:      privacyUC,
+		privacyUC: privacyUC,
 		// favoriteUC:     favoriteUC,
 		// notificationUC: notificationUC,
-		jwtSecret:      jwtSecret,
 	}
 }
 

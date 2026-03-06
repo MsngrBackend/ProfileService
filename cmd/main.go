@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/joho/godotenv"
-
-	"github.com/jmoiron/sqlx"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 
 	delivery "github.com/MsngrBackend/ProfileService/internal/delivery/http"
 	"github.com/MsngrBackend/ProfileService/internal/repository"
@@ -16,35 +15,32 @@ import (
 )
 
 func main() {
-
 	if err := godotenv.Load(); err != nil {
-    log.Println("no .env file found")
-  }
+		log.Println("no .env file, using system env")
+	}
 
 	db := sqlx.MustConnect("pgx", os.Getenv("DATABASE_URL"))
 	defer db.Close()
 
-	// Repositories
 	profileRepo := repository.NewProfilePostgres(db)
-	// contactRepo  := repository.NewContactPostgres(db)
-	privacyRepo  := repository.NewPrivacyPostgres(db)
-	// favRepo      := repository.NewFavoritePostgres(db)
-	// notifRepo    := repository.NewNotificationPostgres(db)
-	avatarStore  := repository.NewMinIOStorage(
+	// contactRepo := repository.NewContactPostgres(db)
+	privacyRepo := repository.NewPrivacyPostgres(db)
+	// favRepo := repository.NewFavoritePostgres(db)
+	// notifRepo := repository.NewNotificationPostgres(db)
+	avatarStore := repository.NewMinIOStorage(
 		os.Getenv("MINIO_ENDPOINT"),
 		os.Getenv("MINIO_ACCESS_KEY"),
 		os.Getenv("MINIO_SECRET_KEY"),
 	)
 
-	// Usecases
 	profileUC := usecase.NewProfileUsecase(profileRepo, avatarStore)
-	// contactUC  := usecase.NewContactUsecase(contactRepo)
-	privacyUC  := usecase.NewPrivacyUsecase(privacyRepo)
-	// favUC      := usecase.NewFavoriteUsecase(favRepo)
-	// notifUC    := usecase.NewNotificationUsecase(notifRepo)
+	// contactUC := usecase.NewContactUsecase(contactRepo)
+	privacyUC := usecase.NewPrivacyUsecase(privacyRepo)
+	// favUC := usecase.NewFavoriteUsecase(favRepo)
+	// notifUC := usecase.NewNotificationUsecase(notifRepo)
 
-	// Handler + Router
-	h := delivery.NewHandler(profileUC, privacyUC, os.Getenv("JWT_SECRET"))
+	// h := delivery.NewHandler(profileUC, contactUC, privacyUC, favUC, notifUC)
+	h := delivery.NewHandler(profileUC, privacyUC)
 	router := h.NewRouter()
 
 	log.Println("Profile service running on :8082")

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
 )
 
 func (h *Handler) GetMyProfile(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +16,8 @@ func (h *Handler) GetMyProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetProfileByID(w http.ResponseWriter, r *http.Request) {
-	profile, err := h.profileUC.GetProfile(r.Context(), chi.URLParam(r, "user_id"))
+	userID := r.PathValue("user_id")
+	profile, err := h.profileUC.GetProfile(r.Context(), userID)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
