@@ -22,4 +22,5 @@ Handles profiles, contacts, favorites, privacy settings, and notification prefer
 git clone https://github.com/MsngrBackend/ProfileService
 cd ProfileService
 
+docker compose down -v
 docker compose up --build
