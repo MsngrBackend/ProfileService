@@ -1,31 +1,25 @@
-# Profile microservice
+# Profile Service
 
-WIP version of profile microservice
+Profile microservice for the Messenger backend.  
+Handles profiles, contacts, favorites, privacy settings, and notification preferences.
 
-# Installation guide
+## Stack
 
-1) Clone repository
+- **Go 1.23**
+- **PostgreSQL 16** — profiles, contacts, favorites, privacy, notifications
+- **MinIO** — avatar storage (S3-compatible)
+- **goose** — database migrations
+- **Docker + Compose** — local development
 
-2) Make sure Go 1.26 or newer is installed
+## Requirements
 
-3) Install 'go-micro' framework
+- [Docker](https://docs.docker.com/get-docker/) with Compose plugin
+- Go 1.22+ (only needed for local development outside Docker)
 
-  ```go install go-micro.dev/v5@latest```
+## Run
 
+```bash
+git clone https://github.com/MsngrBackend/ProfileService
+cd ProfileService
 
-go mod tidy
-
-go install github.com/pressly/goose/v3/cmd/goose@latest
-
-export PATH=$PATH:$(go env GOPATH)/bin to ~/.bashrc
-
-docker compose up -d
-
-
-
-goose -dir migrations postgres \
-  "postgres://profile:secret@localhost:5432/profile_db" up
-
-# open http://localhost:9001 in browser
-# login: minioadmin / minioadmin
-# create bucket named "avatars"
+docker compose up --build

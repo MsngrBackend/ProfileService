@@ -3,6 +3,7 @@ package domain
 import "context"
 
 type ProfileRepository interface {
+	Create(ctx context.Context, userID string) (*Profile, error)
 	GetByID(ctx context.Context, userID string) (*Profile, error)
 	Update(ctx context.Context, p *Profile) error
 	UpdateAvatarURL(ctx context.Context, userID, url string) error

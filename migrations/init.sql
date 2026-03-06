@@ -5,11 +5,11 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TYPE visibility_type AS ENUM ('everyone', 'contacts', 'nobody');
 
 CREATE TABLE profiles (
-    user_id    UUID PRIMARY KEY,
+    user_id UUID PRIMARY KEY,
     first_name VARCHAR(100),
-    last_name  VARCHAR(100),
-    username   VARCHAR(64) UNIQUE,
-    bio        TEXT,
+    last_name VARCHAR(100),
+    username VARCHAR(64) UNIQUE,
+    bio TEXT,
     avatar_url TEXT,
     last_seen_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -17,10 +17,10 @@ CREATE TABLE profiles (
 );
 
 CREATE TABLE privacy_settings (
-    user_id             UUID PRIMARY KEY REFERENCES profiles(user_id) ON DELETE CASCADE,
-    profile_visibility  visibility_type NOT NULL DEFAULT 'everyone',
+    user_id  UUID PRIMARY KEY REFERENCES profiles(user_id) ON DELETE CASCADE,
+    profile_visibility visibility_type NOT NULL DEFAULT 'everyone',
     last_seen_visibility visibility_type NOT NULL DEFAULT 'everyone',
-    avatar_visibility   visibility_type NOT NULL DEFAULT 'everyone'
+    avatar_visibility visibility_type NOT NULL DEFAULT 'everyone'
 );
 
 CREATE TABLE contacts (
@@ -47,12 +47,11 @@ CREATE TABLE notification_settings (
     UNIQUE (user_id, chat_id)
 );
 
--- Indexes
-CREATE INDEX idx_profiles_username       ON profiles(username);
-CREATE INDEX idx_contacts_owner          ON contacts(owner_id);
-CREATE INDEX idx_contacts_contact        ON contacts(contact_id);
-CREATE INDEX idx_notif_user_chat         ON notification_settings(user_id, chat_id);
-CREATE INDEX idx_favorites_user          ON favorites(user_id);
+CREATE INDEX idx_profiles_username ON profiles(username);
+CREATE INDEX idx_contacts_owner ON contacts(owner_id);
+CREATE INDEX idx_contacts_contact ON contacts(contact_id);
+CREATE INDEX idx_notif_user_chat ON notification_settings(user_id, chat_id);
+CREATE INDEX idx_favorites_user ON favorites(user_id);
 
 -- +goose Down
 DROP TABLE IF EXISTS notification_settings;

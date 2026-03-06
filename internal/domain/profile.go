@@ -3,15 +3,15 @@ package domain
 import "time"
 
 type Profile struct {
-	UserID    string     `db:"user_id"    json:"user_id"`
-	FirstName string     `db:"first_name" json:"first_name"`
-	LastName  string     `db:"last_name"  json:"last_name"`
-	Username  string     `db:"username"   json:"username"`
-	Bio       string     `db:"bio"        json:"bio"`
-	AvatarURL string     `db:"avatar_url" json:"avatar_url"`
+	UserID     string     `db:"user_id" json:"user_id"`
+	FirstName  *string    `db:"first_name" json:"first_name,omitempty"`
+	LastName   *string    `db:"last_name" json:"last_name,omitempty"`
+	Username   *string    `db:"username" json:"username,omitempty"`
+	Bio        *string    `db:"bio" json:"bio,omitempty"`
+	AvatarURL  *string    `db:"avatar_url"  json:"avatar_url,omitempty"`
 	LastSeenAt *time.Time `db:"last_seen_at" json:"last_seen_at,omitempty"`
-	CreatedAt time.Time  `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time  `db:"updated_at" json:"updated_at"`
+	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt  time.Time  `db:"updated_at" json:"updated_at"`
 }
 
 type Contact struct {

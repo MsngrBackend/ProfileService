@@ -15,8 +15,9 @@ import (
 )
 
 func main() {
+
 	if err := godotenv.Load(); err != nil {
-		log.Println("no .env file, using system env")
+		log.Println("no .env file found")
 	}
 
 	db := sqlx.MustConnect("pgx", os.Getenv("DATABASE_URL"))

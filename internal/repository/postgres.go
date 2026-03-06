@@ -16,6 +16,17 @@ func NewProfilePostgres(db *sqlx.DB) *ProfilePostgres {
 	return &ProfilePostgres{db: db}
 }
 
+func (r *ProfilePostgres) Create(ctx context.Context, userID string) (*domain.Profile, error) {
+	var p domain.Profile
+	err := r.db.GetContext(ctx, &p,
+		`INSERT INTO profiles (user_id)
+		 VALUES ($1)
+		 ON CONFLICT (user_id) DO UPDATE SET updated_at = now()
+		 RETURNING *`,
+		userID)
+	return &p, err
+}
+
 func (r *ProfilePostgres) GetByID(ctx context.Context, userID string) (*domain.Profile, error) {
 	var p domain.Profile
 	err := r.db.GetContext(ctx, &p,
