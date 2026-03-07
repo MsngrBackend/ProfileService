@@ -9,7 +9,7 @@ type ProfileRepository interface {
 	UpdateAvatarURL(ctx context.Context, userID, url string) error
 }
 
-type ContactRepository interface {
+type ContactsRepository interface {
 	List(ctx context.Context, ownerID string) ([]Contact, error)
 	Add(ctx context.Context, c Contact) error
 	Remove(ctx context.Context, ownerID, contactID string) error

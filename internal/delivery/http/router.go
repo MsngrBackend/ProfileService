@@ -69,9 +69,9 @@ func (h *Handler) NewRouter() http.Handler {
 	mux.Handle("PUT /me/privacy", auth(http.HandlerFunc(h.UpdatePrivacy)))
 
 	// Contacts
-	// mux.Handle("GET /contacts", auth(http.HandlerFunc(h.GetContacts)))
-	// mux.Handle("POST /contacts", auth(http.HandlerFunc(h.AddContact)))
-	// mux.Handle("DELETE /contacts/{user_id}", auth(http.HandlerFunc(h.RemoveContact)))
+	mux.Handle("GET /contacts", auth(http.HandlerFunc(h.GetContacts)))
+	mux.Handle("POST /contacts", auth(http.HandlerFunc(h.AddContact)))
+	mux.Handle("DELETE /contacts/{contact_id}", auth(http.HandlerFunc(h.DeleteContact)))
 
 	// Favorites
 	// mux.Handle("GET /favorites", auth(http.HandlerFunc(h.GetFavorites)))

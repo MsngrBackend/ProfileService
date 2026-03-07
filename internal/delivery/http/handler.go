@@ -8,24 +8,24 @@ import (
 )
 
 type Handler struct {
-	profileUC *usecase.ProfileUsecase
-	// contactUC      *usecase.ContactUsecase
-	privacyUC *usecase.PrivacyUsecase
+	profileUC  *usecase.ProfileUsecase
+	contactsUC *usecase.ContactsUsecase
+	privacyUC  *usecase.PrivacyUsecase
 	// favoriteUC     *usecase.FavoriteUsecase
 	// notificationUC *usecase.NotificationUsecase
 }
 
 func NewHandler(
 	profileUC *usecase.ProfileUsecase,
-	// contactUC *usecase.ContactUsecase,
+	contactsUC *usecase.ContactsUsecase,
 	privacyUC *usecase.PrivacyUsecase,
 	// favoriteUC *usecase.FavoriteUsecase,
 	// notificationUC *usecase.NotificationUsecase,
 ) *Handler {
 	return &Handler{
-		profileUC: profileUC,
-		// contactUC:      contactUC,
-		privacyUC: privacyUC,
+		profileUC:  profileUC,
+		contactsUC: contactsUC,
+		privacyUC:  privacyUC,
 		// favoriteUC:     favoriteUC,
 		// notificationUC: notificationUC,
 	}
@@ -43,4 +43,12 @@ func writeError(w http.ResponseWriter, status int, msg string) {
 
 func userIDFromCtx(r *http.Request) string {
 	return r.Context().Value(UserIDKey).(string)
+}
+
+func ownerIDFromCtx(r *http.Request) string {
+	v, ok := r.Context().Value(UserIDKey).(string)
+	if !ok || v == "" {
+		return ""
+	}
+	return v
 }
