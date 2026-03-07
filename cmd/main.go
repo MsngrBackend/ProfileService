@@ -24,7 +24,7 @@ func main() {
 	defer db.Close()
 
 	profileRepo := repository.NewProfilePostgres(db)
-	// contactRepo := repository.NewContactPostgres(db)
+	contactsRepo := repository.NewContactsPostgres(db)
 	privacyRepo := repository.NewPrivacyPostgres(db)
 	// favRepo := repository.NewFavoritePostgres(db)
 	// notifRepo := repository.NewNotificationPostgres(db)
@@ -35,13 +35,13 @@ func main() {
 	)
 
 	profileUC := usecase.NewProfileUsecase(profileRepo, avatarStore)
-	// contactUC := usecase.NewContactUsecase(contactRepo)
+	contactsUC := usecase.NewContactsUsecase(contactsRepo)
 	privacyUC := usecase.NewPrivacyUsecase(privacyRepo)
 	// favUC := usecase.NewFavoriteUsecase(favRepo)
 	// notifUC := usecase.NewNotificationUsecase(notifRepo)
 
 	// h := delivery.NewHandler(profileUC, contactUC, privacyUC, favUC, notifUC)
-	h := delivery.NewHandler(profileUC, privacyUC)
+	h := delivery.NewHandler(profileUC, contactsUC, privacyUC)
 	router := h.NewRouter()
 
 	log.Println("Profile service running on :8082")

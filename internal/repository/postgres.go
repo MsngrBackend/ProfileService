@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/MsngrBackend/ProfileService/internal/domain"
+	"github.com/jmoiron/sqlx"
 )
 
 func isUniqueViolation(err error) bool {
@@ -61,20 +61,20 @@ func (r *ProfilePostgres) UpdateAvatarURL(ctx context.Context, userID, url strin
 
 // ---- Contacts ----
 
-type ContactPostgres struct{ db *sqlx.DB }
+type ContactsPostgres struct{ db *sqlx.DB }
 
-func NewContactPostgres(db *sqlx.DB) *ContactPostgres {
-	return &ContactPostgres{db: db}
+func NewContactsPostgres(db *sqlx.DB) *ContactsPostgres {
+	return &ContactsPostgres{db: db}
 }
 
-func (r *ContactPostgres) List(ctx context.Context, ownerID string) ([]domain.Contact, error) {
+func (r *ContactsPostgres) List(ctx context.Context, ownerID string) ([]domain.Contact, error) {
 	var contacts []domain.Contact
 	err := r.db.SelectContext(ctx, &contacts,
 		`SELECT * FROM contacts WHERE owner_id = $1 ORDER BY created_at DESC`, ownerID)
 	return contacts, err
 }
 
-func (r *ContactPostgres) Add(ctx context.Context, c domain.Contact) error {
+func (r *ContactsPostgres) Add(ctx context.Context, c domain.Contact) error {
 	_, err := r.db.ExecContext(ctx,
 		`INSERT INTO contacts (owner_id, contact_id, alias)
 		 VALUES ($1, $2, $3)
@@ -83,7 +83,7 @@ func (r *ContactPostgres) Add(ctx context.Context, c domain.Contact) error {
 	return err
 }
 
-func (r *ContactPostgres) Remove(ctx context.Context, ownerID, contactID string) error {
+func (r *ContactsPostgres) Remove(ctx context.Context, ownerID, contactID string) error {
 	_, err := r.db.ExecContext(ctx,
 		`DELETE FROM contacts WHERE owner_id = $1 AND contact_id = $2`,
 		ownerID, contactID)
