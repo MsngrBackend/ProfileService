@@ -3,6 +3,7 @@ package http
 type UpdateProfileRequest struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
+	Username  string `json:"username"`
 	Bio       string `json:"bio"`
 }
 

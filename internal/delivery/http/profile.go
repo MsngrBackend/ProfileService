@@ -46,8 +46,12 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid body")
 		return
 	}
-	updated, err := h.profileUC.UpdateProfile(r.Context(), userIDFromCtx(r), req.FirstName, req.LastName, req.Bio)
+	updated, err := h.profileUC.UpdateProfile(r.Context(), userIDFromCtx(r), req.FirstName, req.LastName, req.Username, req.Bio)
 	if err != nil {
+		if err.Error() == "username already taken" {
+			writeError(w, http.StatusConflict, "username already taken")
+			return
+		}
 		writeError(w, http.StatusInternalServerError, "update failed")
 		return
 	}

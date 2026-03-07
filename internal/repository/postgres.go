@@ -2,11 +2,17 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/MsngrBackend/ProfileService/internal/domain"
 )
+
+func isUniqueViolation(err error) bool {
+	return strings.Contains(err.Error(), "23505") || strings.Contains(err.Error(), "unique")
+}
 
 // ---- Profile ----
 
@@ -37,9 +43,12 @@ func (r *ProfilePostgres) GetByID(ctx context.Context, userID string) (*domain.P
 func (r *ProfilePostgres) Update(ctx context.Context, p *domain.Profile) error {
 	_, err := r.db.ExecContext(ctx,
 		`UPDATE profiles
-		 SET first_name = $1, last_name = $2, bio = $3, updated_at = now()
-		 WHERE user_id = $4`,
-		p.FirstName, p.LastName, p.Bio, p.UserID)
+		 SET first_name = $1, last_name = $2, username = $3, bio = $4, updated_at = now()
+		 WHERE user_id = $5`,
+		p.FirstName, p.LastName, p.Username, p.Bio, p.UserID)
+	if err != nil && isUniqueViolation(err) {
+		return errors.New("username already taken")
+	}
 	return err
 }
 
