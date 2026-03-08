@@ -74,14 +74,15 @@ func (h *Handler) NewRouter() http.Handler {
 	mux.Handle("DELETE /contacts/{contact_id}", auth(http.HandlerFunc(h.DeleteContact)))
 
 	// Favorites
-	// mux.Handle("GET /favorites", auth(http.HandlerFunc(h.GetFavorites)))
-	// mux.Handle("POST /favorites/{chat_id}", auth(http.HandlerFunc(h.AddFavorite)))
-	// mux.Handle("DELETE /favorites/{chat_id}", auth(http.HandlerFunc(h.RemoveFavorite)))
+	mux.Handle("GET /favorites", auth(http.HandlerFunc(h.GetFavorites)))
+	mux.Handle("POST /favorites/{chat_id}", auth(http.HandlerFunc(h.AddFavorite)))
+	mux.Handle("DELETE /favorites/{chat_id}", auth(http.HandlerFunc(h.RemoveFavorite)))
 
 	// Notifications
-	// mux.Handle("GET /notifications", auth(http.HandlerFunc(h.GetNotifications)))
-	// mux.Handle("PUT /notifications", auth(http.HandlerFunc(h.UpdateNotifications)))
-	// mux.Handle("PUT /notifications/{chat_id}", auth(http.HandlerFunc(h.UpdateChatNotifications)))
+	mux.Handle("GET /notifications", auth(http.HandlerFunc(h.GetNotifications)))
+	mux.Handle("GET /notifications/{chat_id}", auth(http.HandlerFunc(h.GetChatNotifications)))
+	mux.Handle("PUT /notifications", auth(http.HandlerFunc(h.UpdateNotifications)))
+	mux.Handle("PUT /notifications/{chat_id}", auth(http.HandlerFunc(h.UpdateChatNotifications)))
 
 	return chain(mux, recovererMiddleware, loggerMiddleware, corsMiddleware)
 }

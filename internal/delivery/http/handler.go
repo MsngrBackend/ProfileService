@@ -8,26 +8,26 @@ import (
 )
 
 type Handler struct {
-	profileUC  *usecase.ProfileUsecase
-	contactsUC *usecase.ContactsUsecase
-	privacyUC  *usecase.PrivacyUsecase
-	// favoriteUC     *usecase.FavoriteUsecase
-	// notificationUC *usecase.NotificationUsecase
+	profileUC      *usecase.ProfileUsecase
+	contactsUC     *usecase.ContactsUsecase
+	privacyUC      *usecase.PrivacyUsecase
+	favoriteUC     *usecase.FavoriteUsecase
+	notificationUC *usecase.NotificationUsecase
 }
 
 func NewHandler(
 	profileUC *usecase.ProfileUsecase,
 	contactsUC *usecase.ContactsUsecase,
 	privacyUC *usecase.PrivacyUsecase,
-	// favoriteUC *usecase.FavoriteUsecase,
-	// notificationUC *usecase.NotificationUsecase,
+	favoriteUC *usecase.FavoriteUsecase,
+	notificationUC *usecase.NotificationUsecase,
 ) *Handler {
 	return &Handler{
-		profileUC:  profileUC,
-		contactsUC: contactsUC,
-		privacyUC:  privacyUC,
-		// favoriteUC:     favoriteUC,
-		// notificationUC: notificationUC,
+		profileUC:      profileUC,
+		contactsUC:     contactsUC,
+		privacyUC:      privacyUC,
+		favoriteUC:     favoriteUC,
+		notificationUC: notificationUC,
 	}
 }
 

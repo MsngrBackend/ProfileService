@@ -26,8 +26,8 @@ func main() {
 	profileRepo := repository.NewProfilePostgres(db)
 	contactsRepo := repository.NewContactsPostgres(db)
 	privacyRepo := repository.NewPrivacyPostgres(db)
-	// favRepo := repository.NewFavoritePostgres(db)
-	// notifRepo := repository.NewNotificationPostgres(db)
+	favRepo := repository.NewFavoritePostgres(db)
+	notifRepo := repository.NewNotificationPostgres(db)
 	avatarStore := repository.NewMinIOStorage(
 		os.Getenv("MINIO_ENDPOINT"),
 		os.Getenv("MINIO_ACCESS_KEY"),
@@ -37,11 +37,10 @@ func main() {
 	profileUC := usecase.NewProfileUsecase(profileRepo, avatarStore)
 	contactsUC := usecase.NewContactsUsecase(contactsRepo)
 	privacyUC := usecase.NewPrivacyUsecase(privacyRepo)
-	// favUC := usecase.NewFavoriteUsecase(favRepo)
-	// notifUC := usecase.NewNotificationUsecase(notifRepo)
+	favUC := usecase.NewFavoriteUsecase(favRepo)
+	notifUC := usecase.NewNotificationUsecase(notifRepo)
 
-	// h := delivery.NewHandler(profileUC, contactUC, privacyUC, favUC, notifUC)
-	h := delivery.NewHandler(profileUC, contactsUC, privacyUC)
+	h := delivery.NewHandler(profileUC, contactsUC, privacyUC, favUC, notifUC)
 	router := h.NewRouter()
 
 	log.Println("Profile service running on :8082")
