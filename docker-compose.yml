@@ -26,6 +26,7 @@ services:
       GOOSE_DRIVER: postgres
       GOOSE_DBSTRING: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       GOOSE_COMMAND: up
+      GOOSE_MIGRATION_DIR: /migrations
     volumes:
       - ./migrations:/migrations
     depends_on:
