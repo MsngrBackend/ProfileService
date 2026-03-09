@@ -20,20 +20,20 @@ services:
     networks:
       - msngr-network
 
-  migrate:
-    image: ghcr.io/kukymbr/goose-docker:latest
-    environment:
-      GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      GOOSE_COMMAND: up
-      GOOSE_MIGRATION_DIR: /migrations
-    volumes:
-      - ./migrations:/migrations
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - msngr-network
+  # migrate:
+  #   image: ghcr.io/kukymbr/goose-docker:latest
+  #   environment:
+  #     GOOSE_DRIVER: postgres
+  #     GOOSE_DBSTRING: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+  #     GOOSE_COMMAND: up
+  #     GOOSE_MIGRATION_DIR: /migrations
+  #   volumes:
+  #     - ./migrations:/migrations
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - msngr-network
 
   minio:
     image: minio/minio
@@ -85,8 +85,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
+      # migrate:
+      #   condition: service_completed_successfully
       minio-init:
         condition: service_completed_successfully
     networks:

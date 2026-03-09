@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/pressly/goose/v3"
 	"github.com/rs/cors"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -23,6 +24,15 @@ func main() {
 
 	db := sqlx.MustConnect("pgx", os.Getenv("DATABASE_URL"))
 	defer db.Close()
+
+	// Run migrations
+	if err := goose.SetDialect("postgres"); err != nil {
+		log.Fatalf("goose set dialect: %v", err)
+	}
+	if err := goose.Up(db.DB, "./migrations"); err != nil {
+		log.Fatalf("goose up: %v", err)
+	}
+	log.Println("Migrations applied successfully")
 
 	profileRepo := repository.NewProfilePostgres(db)
 	contactsRepo := repository.NewContactsPostgres(db)

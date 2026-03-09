@@ -10,5 +10,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o profile-service ./cmd/main.go
 FROM alpine:3.20
 WORKDIR /app
 COPY --from=builder /app/profile-service .
+COPY --from=builder /app/migrations ./migrations
 EXPOSE 8082
 CMD ["./profile-service"]
