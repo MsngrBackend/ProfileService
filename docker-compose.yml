@@ -2,54 +2,67 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: profile
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: profile_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U profile -d profile_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   migrate:
     image: ghcr.io/kukymbr/goose-docker:latest
     environment:
       GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: postgres://profile:secret@postgres:5432/profile_db
+      GOOSE_DBSTRING: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       GOOSE_COMMAND: up
     volumes:
       - ./migrations:/migrations
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - app-network
 
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
 
   minio-init:
     image: minio/mc
     entrypoint: >
       /bin/sh -c "
-        sleep 3;
-        mc alias set local http://minio:9000 minioadmin minioadmin;
+        mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
         mc mb --ignore-existing local/avatars;
         echo 'bucket ready';
       "
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
+    networks:
+      - app-network
 
   profile-service:
     build:
@@ -58,17 +71,25 @@ services:
     ports:
       - "8082:8082"
     environment:
-      DATABASE_URL: postgres://profile:secret@postgres:5432/profile_db
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       MINIO_ENDPOINT: minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      TEST_USER_ID: 00000000-0000-0000-0000-000000000001
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      TEST_USER_ID: ${TEST_USER_ID}
     depends_on:
       postgres:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
   minio_data:
+
+networks:
+  app-network:
+    external: true
