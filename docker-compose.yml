@@ -1,3 +1,5 @@
+name: profile-service
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -64,7 +66,7 @@ services:
     networks:
       - msngr-network
 
-  profile-service:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
