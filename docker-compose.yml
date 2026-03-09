@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - app-network
+      - msngr-network
 
   migrate:
     image: ghcr.io/kukymbr/goose-docker:latest
@@ -29,7 +29,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - app-network
+      - msngr-network
 
   minio:
     image: minio/minio
@@ -48,7 +48,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - app-network
+      - msngr-network
 
   minio-init:
     image: minio/mc
@@ -62,7 +62,7 @@ services:
       minio:
         condition: service_healthy
     networks:
-      - app-network
+      - msngr-network
 
   profile-service:
     build:
@@ -84,12 +84,12 @@ services:
       minio-init:
         condition: service_completed_successfully
     networks:
-      - app-network
+      - msngr-network
 
 volumes:
   postgres_data:
   minio_data:
 
 networks:
-  app-network:
+  msngr-network:
     external: true
