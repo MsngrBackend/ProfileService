@@ -7,6 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.70
+	github.com/rs/cors v1.11.1
 )
 
 require (
