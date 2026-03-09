@@ -49,7 +49,7 @@ services:
       - minio_data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 5s
+      interval: 2s
       timeout: 5s
       retries: 5
     networks:
