@@ -40,6 +40,13 @@ func (r *ProfilePostgres) GetByID(ctx context.Context, userID string) (*domain.P
 	return &p, err
 }
 
+func (r *ProfilePostgres) GetByUsername(ctx context.Context, username string) (*domain.Profile, error) {
+	var p domain.Profile
+	err := r.db.GetContext(ctx, &p,
+		`SELECT * FROM profiles WHERE username = $1`, username)
+	return &p, err
+}
+
 func (r *ProfilePostgres) Update(ctx context.Context, p *domain.Profile) error {
 	_, err := r.db.ExecContext(ctx,
 		`UPDATE profiles

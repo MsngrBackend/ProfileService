@@ -23,6 +23,10 @@ func (uc *ProfileUsecase) GetProfile(ctx context.Context, userID string) (*domai
 	return uc.repo.GetByID(ctx, userID)
 }
 
+func (uc *ProfileUsecase) GetProfileByUsername(ctx context.Context, username string) (*domain.Profile, error) {
+	return uc.repo.GetByUsername(ctx, username)
+}
+
 func (uc *ProfileUsecase) UpdateProfile(ctx context.Context, userID, firstName, lastName, username, bio string) (*domain.Profile, error) {
 	p, err := uc.repo.GetByID(ctx, userID)
 	if err != nil {

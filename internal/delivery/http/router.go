@@ -58,6 +58,7 @@ func (h *Handler) NewRouter() http.Handler {
 	// Profile
 	mux.Handle("GET /me", auth(http.HandlerFunc(h.GetMyProfile)))
 	mux.Handle("PATCH /me", auth(http.HandlerFunc(h.UpdateProfile)))
+	mux.Handle("GET /by-username/{username}", auth(http.HandlerFunc(h.GetProfileByUsername)))
 	mux.Handle("GET /{user_id}", auth(http.HandlerFunc(h.GetProfileByID)))
 
 	// Avatar
