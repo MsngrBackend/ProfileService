@@ -23,6 +23,10 @@ func NewMinIOStorage(endpoint, accessKey, secretKey string) *MinIOStorage {
 	if err != nil {
 		panic(fmt.Sprintf("minio init failed: %v", err))
 	}
+
+	policy := `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::avatars/*"]}]}`
+	_ = client.SetBucketPolicy(context.Background(), bucketName, policy)
+
 	return &MinIOStorage{client: client}
 }
 
