@@ -1,6 +1,11 @@
 package domain
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var ErrProfileHidden = errors.New("profile is not visible")
 
 type Profile struct {
 	UserID     string     `db:"user_id" json:"user_id"`
