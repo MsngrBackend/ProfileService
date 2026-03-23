@@ -45,7 +45,7 @@ func main() {
 		os.Getenv("MINIO_SECRET_KEY"),
 	)
 
-	profileUC := usecase.NewProfileUsecase(profileRepo, avatarStore)
+	profileUC := usecase.NewProfileUsecase(profileRepo, contactsRepo, privacyRepo, avatarStore)
 	contactsUC := usecase.NewContactsUsecase(contactsRepo)
 	privacyUC := usecase.NewPrivacyUsecase(privacyRepo)
 	favUC := usecase.NewFavoriteUsecase(favRepo)
