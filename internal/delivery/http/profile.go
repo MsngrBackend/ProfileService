@@ -1,10 +1,21 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+
+	"github.com/MsngrBackend/ProfileService/internal/domain"
 )
+
+func viewerFromCtx(ctx context.Context) string {
+	if id, ok := ctx.Value("userID").(string); ok {
+		return id
+	}
+	return ""
+}
 
 func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	var req struct {
@@ -23,7 +34,8 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetMyProfile(w http.ResponseWriter, r *http.Request) {
-	profile, err := h.profileUC.GetProfile(r.Context(), userIDFromCtx(r))
+	userID := userIDFromCtx(r)
+	profile, err := h.profileUC.GetProfile(r.Context(), userID, userID)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
@@ -32,8 +44,12 @@ func (h *Handler) GetMyProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetProfileByID(w http.ResponseWriter, r *http.Request) {
-	profile, err := h.profileUC.GetProfile(r.Context(), r.PathValue("user_id"))
+	profile, err := h.profileUC.GetProfile(r.Context(), r.PathValue("user_id"), viewerFromCtx(r.Context()))
 	if err != nil {
+		if errors.Is(err, domain.ErrProfileHidden) {
+			writeError(w, http.StatusForbidden, "profile is not visible")
+			return
+		}
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
 	}
@@ -46,8 +62,12 @@ func (h *Handler) GetProfileByUsername(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "username is required")
 		return
 	}
-	profile, err := h.profileUC.GetProfileByUsername(r.Context(), username)
+	profile, err := h.profileUC.GetProfileByUsername(r.Context(), username, viewerFromCtx(r.Context()))
 	if err != nil {
+		if errors.Is(err, domain.ErrProfileHidden) {
+			writeError(w, http.StatusForbidden, "profile is not visible")
+			return
+		}
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
 	}
@@ -73,7 +93,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(10 << 20) // 10MB
+	r.ParseMultipartForm(10 << 20)
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "missing file")
