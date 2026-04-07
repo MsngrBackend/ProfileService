@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 
 	delivery "github.com/MsngrBackend/ProfileService/internal/delivery/http"
+	"github.com/MsngrBackend/ProfileService/internal/events"
 	"github.com/MsngrBackend/ProfileService/internal/repository"
 	"github.com/MsngrBackend/ProfileService/internal/usecase"
 )
@@ -51,7 +52,10 @@ func main() {
 	favUC := usecase.NewFavoriteUsecase(favRepo)
 	notifUC := usecase.NewNotificationUsecase(notifRepo)
 
-	h := delivery.NewHandler(profileUC, contactsUC, privacyUC, favUC, notifUC)
+	natsPub := events.NewProfilePublisher()
+	defer natsPub.Close()
+
+	h := delivery.NewHandler(profileUC, contactsUC, privacyUC, favUC, notifUC, natsPub)
 	router := h.NewRouter()
 
 	c := cors.New(cors.Options{

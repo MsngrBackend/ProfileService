@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/MsngrBackend/ProfileService/internal/events"
 	"github.com/MsngrBackend/ProfileService/internal/usecase"
 )
 
 type Handler struct {
-	profileUC      *usecase.ProfileUsecase
-	contactsUC     *usecase.ContactsUsecase
-	privacyUC      *usecase.PrivacyUsecase
-	favoriteUC     *usecase.FavoriteUsecase
-	notificationUC *usecase.NotificationUsecase
+	profileUC       *usecase.ProfileUsecase
+	contactsUC      *usecase.ContactsUsecase
+	privacyUC       *usecase.PrivacyUsecase
+	favoriteUC      *usecase.FavoriteUsecase
+	notificationUC  *usecase.NotificationUsecase
+	profileEvents   *events.ProfilePublisher
 }
 
 func NewHandler(
@@ -21,6 +23,7 @@ func NewHandler(
 	privacyUC *usecase.PrivacyUsecase,
 	favoriteUC *usecase.FavoriteUsecase,
 	notificationUC *usecase.NotificationUsecase,
+	profileEvents *events.ProfilePublisher,
 ) *Handler {
 	return &Handler{
 		profileUC:      profileUC,
@@ -28,6 +31,7 @@ func NewHandler(
 		privacyUC:      privacyUC,
 		favoriteUC:     favoriteUC,
 		notificationUC: notificationUC,
+		profileEvents:  profileEvents,
 	}
 }
 

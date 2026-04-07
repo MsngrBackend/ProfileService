@@ -80,7 +80,8 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid body")
 		return
 	}
-	updated, err := h.profileUC.UpdateProfile(r.Context(), userIDFromCtx(r), req.FirstName, req.LastName, req.Username, req.Bio)
+	uid := userIDFromCtx(r)
+	updated, err := h.profileUC.UpdateProfile(r.Context(), uid, req.FirstName, req.LastName, req.Username, req.Bio)
 	if err != nil {
 		if err.Error() == "username already taken" {
 			writeError(w, http.StatusConflict, "username already taken")
@@ -88,6 +89,9 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		}
 		writeError(w, http.StatusInternalServerError, "update failed")
 		return
+	}
+	if h.profileEvents != nil {
+		h.profileEvents.PublishProfileUpdated(uid, "profile")
 	}
 	writeJSON(w, http.StatusOK, updated)
 }
@@ -107,18 +111,26 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url, err := h.profileUC.UploadAvatar(r.Context(), userIDFromCtx(r), data, header.Header.Get("Content-Type"))
+	uid := userIDFromCtx(r)
+	url, err := h.profileUC.UploadAvatar(r.Context(), uid, data, header.Header.Get("Content-Type"))
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "upload failed")
 		return
+	}
+	if h.profileEvents != nil {
+		h.profileEvents.PublishProfileUpdated(uid, "avatar")
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"avatar_url": url})
 }
 
 func (h *Handler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
-	if err := h.profileUC.DeleteAvatar(r.Context(), userIDFromCtx(r)); err != nil {
+	uid := userIDFromCtx(r)
+	if err := h.profileUC.DeleteAvatar(r.Context(), uid); err != nil {
 		writeError(w, http.StatusInternalServerError, "delete failed")
 		return
+	}
+	if h.profileEvents != nil {
+		h.profileEvents.PublishProfileUpdated(uid, "avatar")
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
