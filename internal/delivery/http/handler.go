@@ -4,16 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-
 	"github.com/MsngrBackend/ProfileService/internal/domain"
+	"github.com/MsngrBackend/ProfileService/internal/events"
+	"github.com/MsngrBackend/ProfileService/internal/usecase"
 )
 
 type Handler struct {
-	profileUC      profileUsecase
-	contactsUC     contactsUsecase
-	privacyUC      privacyUsecase
-	favoriteUC     favoriteUsecase
-	notificationUC notificationsUsecase
+	profileUC       *usecase.ProfileUsecase
+	contactsUC      *usecase.ContactsUsecase
+	privacyUC       *usecase.PrivacyUsecase
+	favoriteUC      *usecase.FavoriteUsecase
+	notificationUC  *usecase.NotificationUsecase
+	profileEvents   *events.ProfilePublisher
 }
 
 type profileUsecase interface {
@@ -51,11 +53,12 @@ type contactsUsecase interface {
 }
 
 func NewHandler(
-	profileUC profileUsecase,
-	contactsUC contactsUsecase,
-	privacyUC privacyUsecase,
-	favoriteUC favoriteUsecase,
-	notificationUC notificationsUsecase,
+	profileUC *usecase.ProfileUsecase,
+	contactsUC *usecase.ContactsUsecase,
+	privacyUC *usecase.PrivacyUsecase,
+	favoriteUC *usecase.FavoriteUsecase,
+	notificationUC *usecase.NotificationUsecase,
+	profileEvents *events.ProfilePublisher,
 ) *Handler {
 	return &Handler{
 		profileUC:      profileUC,
@@ -63,6 +66,7 @@ func NewHandler(
 		privacyUC:      privacyUC,
 		favoriteUC:     favoriteUC,
 		notificationUC: notificationUC,
+		profileEvents:  profileEvents,
 	}
 }
 

@@ -1,10 +1,21 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+
+	"github.com/MsngrBackend/ProfileService/internal/domain"
 )
+
+func viewerFromCtx(ctx context.Context) string {
+	if id, ok := ctx.Value("userID").(string); ok {
+		return id
+	}
+	return ""
+}
 
 func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	var req struct {
@@ -23,7 +34,8 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetMyProfile(w http.ResponseWriter, r *http.Request) {
-	profile, err := h.profileUC.GetProfile(r.Context(), userIDFromCtx(r))
+	userID := userIDFromCtx(r)
+	profile, err := h.profileUC.GetProfile(r.Context(), userID, userID)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
@@ -32,8 +44,12 @@ func (h *Handler) GetMyProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetProfileByID(w http.ResponseWriter, r *http.Request) {
-	profile, err := h.profileUC.GetProfile(r.Context(), r.PathValue("user_id"))
+	profile, err := h.profileUC.GetProfile(r.Context(), r.PathValue("user_id"), viewerFromCtx(r.Context()))
 	if err != nil {
+		if errors.Is(err, domain.ErrProfileHidden) {
+			writeError(w, http.StatusForbidden, "profile is not visible")
+			return
+		}
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
 	}
@@ -46,8 +62,12 @@ func (h *Handler) GetProfileByUsername(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "username is required")
 		return
 	}
-	profile, err := h.profileUC.GetProfileByUsername(r.Context(), username)
+	profile, err := h.profileUC.GetProfileByUsername(r.Context(), username, viewerFromCtx(r.Context()))
 	if err != nil {
+		if errors.Is(err, domain.ErrProfileHidden) {
+			writeError(w, http.StatusForbidden, "profile is not visible")
+			return
+		}
 		writeError(w, http.StatusNotFound, "profile not found")
 		return
 	}
@@ -60,7 +80,8 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid body")
 		return
 	}
-	updated, err := h.profileUC.UpdateProfile(r.Context(), userIDFromCtx(r), req.FirstName, req.LastName, req.Username, req.Bio)
+	uid := userIDFromCtx(r)
+	updated, err := h.profileUC.UpdateProfile(r.Context(), uid, req.FirstName, req.LastName, req.Username, req.Bio)
 	if err != nil {
 		if err.Error() == "username already taken" {
 			writeError(w, http.StatusConflict, "username already taken")
@@ -69,11 +90,14 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusInternalServerError, "update failed")
 		return
 	}
+	if h.profileEvents != nil {
+		h.profileEvents.PublishProfileUpdated(uid, "profile")
+	}
 	writeJSON(w, http.StatusOK, updated)
 }
 
 func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(10 << 20) // 10MB
+	r.ParseMultipartForm(10 << 20)
 	file, header, err := r.FormFile("avatar")
 	if err != nil {
 		writeError(w, http.StatusBadRequest, "missing file")
@@ -87,18 +111,26 @@ func (h *Handler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url, err := h.profileUC.UploadAvatar(r.Context(), userIDFromCtx(r), data, header.Header.Get("Content-Type"))
+	uid := userIDFromCtx(r)
+	url, err := h.profileUC.UploadAvatar(r.Context(), uid, data, header.Header.Get("Content-Type"))
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "upload failed")
 		return
+	}
+	if h.profileEvents != nil {
+		h.profileEvents.PublishProfileUpdated(uid, "avatar")
 	}
 	writeJSON(w, http.StatusOK, map[string]string{"avatar_url": url})
 }
 
 func (h *Handler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
-	if err := h.profileUC.DeleteAvatar(r.Context(), userIDFromCtx(r)); err != nil {
+	uid := userIDFromCtx(r)
+	if err := h.profileUC.DeleteAvatar(r.Context(), uid); err != nil {
 		writeError(w, http.StatusInternalServerError, "delete failed")
 		return
+	}
+	if h.profileEvents != nil {
+		h.profileEvents.PublishProfileUpdated(uid, "avatar")
 	}
 	w.WriteHeader(http.StatusNoContent)
 }

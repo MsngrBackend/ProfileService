@@ -7,6 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.70
+	github.com/nats-io/nats.go v1.37.0
 	github.com/pressly/goose/v3 v3.27.0
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1
@@ -27,6 +28,8 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
