@@ -1,9 +1,10 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
-
+	"github.com/MsngrBackend/ProfileService/internal/domain"
 	"github.com/MsngrBackend/ProfileService/internal/events"
 	"github.com/MsngrBackend/ProfileService/internal/usecase"
 )
@@ -15,6 +16,40 @@ type Handler struct {
 	favoriteUC      *usecase.FavoriteUsecase
 	notificationUC  *usecase.NotificationUsecase
 	profileEvents   *events.ProfilePublisher
+}
+
+type profileUsecase interface {
+	CreateProfile(ctx context.Context, userID string) (*domain.Profile, error)
+	GetProfile(ctx context.Context, userID string) (*domain.Profile, error)
+	GetProfileByUsername(ctx context.Context, username string) (*domain.Profile, error)
+	UpdateProfile(ctx context.Context, userID, firstName, lastName, username, bio string) (*domain.Profile, error)
+	UploadAvatar(ctx context.Context, userID string, data []byte, contentType string) (string, error)
+	DeleteAvatar(ctx context.Context, userID string) error
+}
+
+type privacyUsecase interface {
+	Get(ctx context.Context, userID string) (*domain.PrivacySettings, error)
+	Update(ctx context.Context, s *domain.PrivacySettings) error
+}
+
+type notificationsUsecase interface {
+	Get(ctx context.Context, userID string, chatID *string) (*domain.NotificationSettings, error)
+	GetForChat(ctx context.Context, userID, chatID string) (*domain.NotificationSettings, error)
+	Update(ctx context.Context, userID string, muted bool, mutedUntil *string) error
+	UpdateForChat(ctx context.Context, userID, chatID string, muted bool, mutedUntil *string) error
+}
+
+type favoriteUsecase interface {
+	List(ctx context.Context, userID string) ([]domain.Favorite, error)
+	Add(ctx context.Context, userID, chatID string) error
+	Remove(ctx context.Context, userID, chatID string) error
+	IsFavorite(ctx context.Context, userID, chatID string) (bool, error)
+}
+
+type contactsUsecase interface {
+	GetAllContacts(ctx context.Context, ownerID string) ([]domain.Contact, error)
+	AddContact(ctx context.Context, contact domain.Contact) error
+	DeleteContact(ctx context.Context, ownerID, contactID string) error
 }
 
 func NewHandler(
